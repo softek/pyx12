@@ -10,6 +10,7 @@ namespace X12ResourceTool
     {
         static void Main(string[] args)
         {
+            
         }
     }
 }

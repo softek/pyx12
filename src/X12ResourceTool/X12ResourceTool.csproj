@@ -43,12 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Spec\codes.cs" />
+    <Compile Include="Spec\dataele.cs" />
+    <Compile Include="Spec\map.cs" />
+    <Compile Include="Spec\maps.cs" />
+    <Compile Include="Spec\map_v2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Generated\gen.cmd" />
+    <None Include="Spec\gen.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
