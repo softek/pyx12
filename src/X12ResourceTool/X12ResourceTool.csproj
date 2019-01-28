@@ -47,6 +47,8 @@
     <Compile Include="Spec\dataele.cs" />
     <Compile Include="Spec\map.cs" />
     <Compile Include="Spec\maps.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Spec\MapV2\Map_v2.Custom.cs" />
     <Compile Include="Spec\map_v2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
