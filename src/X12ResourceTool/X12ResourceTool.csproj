@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,12 +47,15 @@
     <Compile Include="Spec\codes.cs" />
     <Compile Include="Spec\dataele.cs" />
     <Compile Include="Spec\map.cs" />
+    <Compile Include="Spec\MapClasses.cs" />
     <Compile Include="Spec\maps.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Spec\MapV1\Map_v1.Custom.cs" />
     <Compile Include="Spec\MapV2\Map_v2.Custom.cs" />
     <Compile Include="Spec\map_v2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="X12SpecConversion.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

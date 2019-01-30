@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace X12ResourceTool.Spec.MapV2
+namespace X12ResourceTool.Spec.MapV1
 {
     public partial class transactionType : ITransaction<LoopType,SegmentType,ElementType>{
         public override string ToString() => $"transactionType: {this.xid}-{this.name}\r\n{this.loop.ToString()}";
