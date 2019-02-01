@@ -24,6 +24,7 @@ namespace X12ResourceTool
             Selector nameSelector, Selector usageSelector,
             ResourceFileWriter writeResourcesFile)
         {
+            string RelativeInputFile(string name) => Path.Combine(fileNames.Select(Path.GetDirectoryName).FirstOrDefault(), name);
             string RelativeOutputFile(string name) => Path.Combine(outputDirectory, name);
 
             void SaveResources(string nameRoot, IEnumerable<KeyValuePair<string, string>> resources)
@@ -80,7 +81,7 @@ namespace X12ResourceTool
             };
 
             SaveMapsCs(
-                RelativeOutputFile("maps.xml"),
+                RelativeInputFile("maps.xml"),
                 RelativeOutputFile("Maps.cs"),
                 defaultMap,
                 segmentName => segmentsByFile[segmentName]);
