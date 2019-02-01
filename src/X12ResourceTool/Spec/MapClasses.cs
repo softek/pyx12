@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// ReSharper disable InconsistentNaming
 
 namespace X12ResourceTool.Spec
 {
@@ -26,45 +23,18 @@ namespace X12ResourceTool.Spec
         ILoop loop { get; }
     }
 
-    public interface ITransaction<TLoop,TSegment,TElement> : ITransaction
-        where TLoop : ILoop<TSegment,TElement>
-        where TSegment : ISegment<TElement>
-        where TElement : IElement
-    {
-        TLoop loop { get; }
-    }
-
     public interface ILoop : IName, IXid
     {
-        string name { get; }
+        IReadOnlyList<ILoop> Loops { get; }
         IReadOnlyList<ISegment> Segments { get; }
-    }
-
-    public interface ILoop<TSegment,TElement> : ILoop
-        where TSegment : ISegment<TElement>
-        where TElement : IElement
-    {
-        string name { get; }
-        TSegment[] segment { get; }
     }
 
     public interface ISegment : IName, IXid, IUsage
     {
-        string name { get; }
         IReadOnlyList<IElement> Elements { get; }
     }
 
-    public interface ISegment<TElement> : ISegment
-        where TElement : IElement
+    public interface IElement : IName, IXid, IUsage
     {
-        string name { get; }
-        TElement[] element { get; }
-    }
-
-    public interface IElement : IName, IXid, IUsage //: IElement
-        //where TElement : IElement
-    {
-        string name { get; }
-        //TElement[] element { get; }
     }
 }

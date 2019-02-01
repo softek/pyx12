@@ -1,60 +1,63 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Resources;
-using System.Xml;
-using System.Xml.Serialization;
-using X12ResourceTool.Spec;
+using System.Linq;
 
 namespace X12ResourceTool
 {
-    class Program
+    /// <summary>
+    /// Builds X12 segment/field name resource files from XML maps,
+    /// and a .CS file containing attributes that specify applicability of each resource file.
+    /// </summary>
+    public static class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            foreach (var filename in args)
+            if (!args.Any())
             {
-                var shortFileName = Path.GetFileName(filename);
-                Console.WriteLine($"-------------------------------- {shortFileName} ----------------------------------");
-                var tx = DeserializeTransaction(filename);
-                foreach (var row in X12SpecConversion.Flatten(tx, x => ((x as IName)?.name, (x as IUsage)?.Usage)))
-                    Console.WriteLine(row);
-                WriteResxFile($"{filename}.Name.resx",
-                    tx.Flatten(x => (x as IName)?.name));
-                WriteResxFile($"{filename}.Usage.resx",
-                    tx.Flatten(x => (x as IUsage)?.Usage));
+                Usage();
+                return 1;
+            }
+
+            try
+            {
+                CreateResourcesAndApplicabilityAttributes(args, GetEnvironmentSetting);
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+                return 2;
             }
         }
 
-        private static void WriteResxFile(string resxFileName, IEnumerable<KeyValuePair<string, string>> values)
+        private static void Usage()
         {
-            using (var oWriter = new ResXResourceWriter(resxFileName))
-            {
-                foreach(var value in values)    
-                    oWriter.AddResource(value.Key, value.Value);
-                oWriter.Generate();
-                oWriter.Close();
-            }
+            Console.WriteLine("Usage: X12ResourceTool map1.xml map2.xml...");
+            Console.WriteLine();
+            Console.WriteLine("When there are several values for a key, these environment variables are used to make a choice.");
+            Console.WriteLine("Each may set to one selector.");
+            Console.WriteLine($"set {Setting.Name_choice}={string.Join("|", ResourceFormatting.Selector.Keys)}");
+            Console.WriteLine($"set {Setting.Usage_choice}={string.Join("|", ResourceFormatting.Selector.Keys)}");
+            Console.WriteLine();
+            Console.WriteLine("Supported output formats:");
+            Console.WriteLine($"set {Setting.Resource_Extension}={string.Join("|", ResourceWriters.ByExtension.Keys)}");
+            Console.WriteLine();
+            Console.WriteLine("Output directory:");
+            Console.WriteLine($"set {Setting.Output_Directory}={string.Join("|", ResourceWriters.ByExtension.Keys)}");
         }
 
-        static ITransaction DeserializeTransaction(string fileName) =>
-            (ITransaction) DeserializeFile(fileName);
+        private static string GetEnvironmentSetting(Setting key, string @default) =>
+            Environment.GetEnvironmentVariable(key.ToString()) ?? @default;
 
-        static object DeserializeFile(string fileName) =>
-            new XmlSerializer(InferDocumentType(fileName)).Deserialize(File.OpenRead(fileName));
-
-        private static Type InferDocumentType(string fileName)
+        public static void CreateResourcesAndApplicabilityAttributes(string[] fileNames, Func<Setting, string, string> setting)
         {
-            var doc = new XmlDocument();
-            doc.Load(fileName);
-            switch (doc.DocumentElement.Attributes["xsi:noNamespaceSchemaLocation"]?.Value)
-            {
-                case "map.v2.xsd": return typeof(Spec.MapV2.transactionType);
-                case "map.xsd": return typeof(Spec.MapV1.transactionType);
-                default:
-                    Console.Error.WriteLine($"XSD is not specified in {fileName}");
-                    return typeof(Spec.MapV1.transactionType);
-            }
+            MapToResourceTranslator.CreateResourcesAndApplicabilityAttributes(
+                fileNames,
+                nameSelector: ResourceFormatting.Selector[setting(Setting.Name_choice, "OnlyOrUncertain")],
+                usageSelector: ResourceFormatting.Selector[setting(Setting.Usage_choice, "First")],
+                outputDirectory: setting(Setting.Output_Directory, Path.GetDirectoryName(fileNames[0]) ?? ""),
+                resourcesFileExtension: setting(Setting.Resource_Extension, ".restext"),
+                writeResourcesFile: ResourceWriters.ForExtension(setting(Setting.Resource_Extension, ".restext")));
         }
     }
 }

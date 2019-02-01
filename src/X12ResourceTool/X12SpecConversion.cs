@@ -8,10 +8,16 @@ namespace X12ResourceTool
 {
     internal static class X12SpecConversion
     {
-        public static IEnumerable<KeyValuePair<string, T>> Flatten<T>(this ITransaction transaction,
-            Func<object, T> xform) =>
-            transaction.loop.Segments.SelectMany(seg => FlattenSegment(seg, xform))
-                       .Prepend(KVP("", "Transaction", xform, transaction));
+        public const char PathDelimiter = '_';
+
+        public static IEnumerable<KeyValuePair<string, T>> GetResources<T>(this ITransaction transaction,
+            Func<object, T> xform, Func<string, bool> includeSegment) =>
+            FlattenLoop(transaction.loop, xform, includeSegment);
+
+        private static IEnumerable<KeyValuePair<string, T>> FlattenLoop<T>(this ILoop loop,
+            Func<object, T> xform, Func<string, bool> includeSegment) =>
+            loop.Loops.SelectMany(seg => FlattenLoop(seg, xform, includeSegment))
+                .Concat(loop.Segments.Where(seg => includeSegment(seg.xid)).SelectMany(seg => FlattenSegment(seg, xform)));
 
         private static IEnumerable<KeyValuePair<string, T>> FlattenSegment<T>(this ISegment segment,
             Func<object, T> xform) =>
@@ -32,7 +38,7 @@ namespace X12ResourceTool
         {
             if (prefix.Length == 0)
                 return key;
-            var sb = new StringBuilder(key).Insert(prefix.Length, "_");
+            var sb = new StringBuilder(key).Insert(prefix.Length, PathDelimiter);
             var elementNumberIndex = prefix.Length + 1;
             if (sb[elementNumberIndex] == '0')
                 sb.Remove(elementNumberIndex, 1);
