@@ -59,8 +59,8 @@ namespace X12ResourceTool
                 var names = tx.GetResources(GetName, includeSegment).ToList();
                 var usage = tx.GetResources(GetUsage, includeSegment).ToList();
 
-                SaveResources($"{filename}.Name", WithSourceAndCopyright(names, shortFileName));
-                SaveResources($"{filename}.Usage", WithSourceAndCopyright(usage, shortFileName));
+                SaveResources($"{shortFileName}.Name", WithSourceAndCopyright(names, shortFileName));
+                SaveResources($"{shortFileName}.Usage", WithSourceAndCopyright(usage, shortFileName));
 
                 allNames.AddRange(names);
                 allUsage.AddRange(usage);

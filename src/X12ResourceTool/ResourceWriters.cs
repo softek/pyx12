@@ -23,9 +23,12 @@ namespace X12ResourceTool
 
         public static void WriteResxFile(string filename, IEnumerable<KeyValuePair<string, string>> values)
         {
+            var fi = new FileInfo(filename);
+            if (fi.Exists)
+                fi.Delete();
             using (var oWriter = new ResXResourceWriter(filename))
             {
-                foreach(var value in values.OrderBy(Key))
+                foreach (var value in values.OrderBy(Key))
                     oWriter.AddResource(value.Key, value.Value);
                 oWriter.Generate();
                 oWriter.Close();
