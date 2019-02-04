@@ -2,7 +2,7 @@
 namespace X12ResourceTool
 {
     [System.AttributeUsage(System.AttributeTargets.Assembly, AllowMultiple = true)]
-    public partial class MapAttribute : System.Attribute
+    public sealed class MapAttribute : System.Attribute
     {
         // ReSharper disable InconsistentNaming
         /// <summary>
