@@ -20,7 +20,9 @@ namespace X12ResourceTool
 
             try
             {
-                CreateResourcesAndApplicabilityAttributes(args, GetEnvironmentSetting);
+                CreateResourcesAndApplicabilityAttributes(
+                    ReadReferencedMapFilesFromMapsXml(args[0]),
+                    GetEnvironmentSetting);
                 return 0;
             }
             catch (Exception e)
@@ -32,7 +34,7 @@ namespace X12ResourceTool
 
         private static void Usage()
         {
-            Console.WriteLine("Usage: X12ResourceTool map1.xml map2.xml...");
+            Console.WriteLine(@"Usage: X12ResourceTool path\to\maps.xml");
             Console.WriteLine();
             Console.WriteLine("When there are several values for a key, these environment variables are used to make a choice.");
             Console.WriteLine("Each may set to one selector.");
@@ -48,6 +50,19 @@ namespace X12ResourceTool
 
         private static string GetEnvironmentSetting(Setting key, string @default) =>
             Environment.GetEnvironmentVariable(key.ToString()) ?? @default;
+
+        public static string[] ReadReferencedMapFilesFromMapsXml(string mapsXmlFileName)
+        {
+            var dir = Path.GetDirectoryName(mapsXmlFileName);
+
+            string RelativePath(string fileName) =>
+                Path.Combine(dir, fileName);
+
+            return MapToResourceTranslator.ReferencedMapFiles(mapsXmlFileName)
+                .OrderBy(s => s.ToLowerInvariant())
+                .Select(RelativePath)
+                .ToArray();
+        }
 
         public static void CreateResourcesAndApplicabilityAttributes(string[] fileNames, Func<Setting, string, string> setting)
         {

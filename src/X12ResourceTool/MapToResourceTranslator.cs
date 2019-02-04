@@ -18,6 +18,15 @@ namespace X12ResourceTool
     /// </summary>
     public static class MapToResourceTranslator
     {
+        public static IEnumerable<string> ReferencedMapFiles(string mapsXmlFileName) =>
+            ReferencedMapFiles(((MapsType)DeserializeFile(mapsXmlFileName)).version);
+
+        public static IEnumerable<string> ReferencedMapFiles(IEnumerable<VersionType> versions) =>
+            versions
+                .SelectMany(version =>
+                    version.map.Select(map => map.Value))
+                .Distinct();
+
         public static void CreateResourcesAndApplicabilityAttributes(
             IEnumerable<string> fileNames,
             string outputDirectory, string resourcesFileExtension,
