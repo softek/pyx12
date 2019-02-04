@@ -36,10 +36,10 @@ namespace X12ResourceTool
             string RelativeInputFile(string name) => Path.Combine(fileNames.Select(Path.GetDirectoryName).FirstOrDefault(), name);
             string RelativeOutputFile(string name) => Path.Combine(outputDirectory, name);
 
-            void SaveResources(string nameRoot, IEnumerable<KeyValuePair<string, string>> resources)
+            void SaveResources(string name, string description, Selector selector, IEnumerable<KeyValuePair<string, string>> resources)
             {
-                var fileName = RelativeOutputFile(nameRoot + resourcesFileExtension);
-                writeResourcesFile(fileName, resources);
+                var fileName = RelativeOutputFile(name + resourcesFileExtension);
+                writeResourcesFile(fileName, WithSourceAndCopyright(BestDefaults(resources, selector), description));
                 Log($"Wrote resources to {fileName}");
             }
 
@@ -65,11 +65,11 @@ namespace X12ResourceTool
                 foreach (var row in tx.GetResources(x => (GetName(x), GetUsage(x)), includeSegment))
                     Console.WriteLine(row);
 
-                var names = tx.GetResources(GetName, includeSegment).ToList();
-                var usage = tx.GetResources(GetUsage, includeSegment).ToList();
+                var names = tx.GetResources(GetName, includeSegment);
+                var usage = tx.GetResources(GetUsage, includeSegment);
 
-                SaveResources($"{shortFileName}.Name", WithSourceAndCopyright(names, shortFileName));
-                SaveResources($"{shortFileName}.Usage", WithSourceAndCopyright(usage, shortFileName));
+                SaveResources($"{shortFileName}.Name",  shortFileName, nameSelector,  names);
+                SaveResources($"{shortFileName}.Usage", shortFileName, usageSelector, usage);
 
                 allNames.AddRange(names);
                 allUsage.AddRange(usage);
@@ -77,8 +77,9 @@ namespace X12ResourceTool
             }
 
             const string x12Default = "x12.default";
-            SaveResources($"{x12Default}.Name", BestDefaults(allNames, nameSelector));
-            SaveResources($"{x12Default}.Usage", BestDefaults(allUsage, usageSelector));
+
+            SaveResources($"{x12Default}.Name", "Defaults via " + nameSelector.Method.Name, nameSelector, allNames);
+            SaveResources($"{x12Default}.Usage", "Defaults via " + usageSelector.Method.Name, usageSelector, allUsage);
             segmentsByFile.Add(x12Default, UniqueSegmentsCsv(allNames.Select(kvp => kvp.Key)));
             var defaultMap = new VersionType
             {

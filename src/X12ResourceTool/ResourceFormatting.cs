@@ -12,7 +12,7 @@ namespace X12ResourceTool
             {"First", Enumerable.First},
             {"OnlyOrEmpty", OnlyOrEmpty},
             {"OnlyOrUncertain", OnlyOrUncertain},
-            {"Commas", ss=> string.Join(", ", ss)},
+            {"Commas", Csv},
         };
 
         static string OnlyOrEmpty(IEnumerable<string> items)
@@ -45,5 +45,8 @@ namespace X12ResourceTool
 
             return only;
         }
+
+        private static string Csv(IEnumerable<string> ss) =>
+            string.Join(", ", ss);
     }
 }
